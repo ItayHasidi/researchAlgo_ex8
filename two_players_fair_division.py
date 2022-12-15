@@ -528,17 +528,3 @@ def trump(agents: AgentList, items: List[Any] = None) -> Dict:
     {'a': [], 'b': []}
     """
     pass
-
-
-if __name__ == '__main__':
-    # h = {'a': {'x': 2, 'y': 3, 'z': 4, 'w': 1}, 'b': {'x': 2, 'y': 3, 'z': 1, 'w': 4}}
-    # u = ['w', 'x', 'y', 'z']
-    # h = {'a': {'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, 'b': {'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}}
-    h = {'a': {'a': 1, 'b': 2, 'c': 3, 'd': 4}, 'b': {'a': 1, 'b': 2, 'c': 3, 'd': 4}}
-    u = ['a', 'b', 'c', 'd']
-    z: dict = {'a': [], 'b': []}
-
-    print("OS:")
-    sequential(u.copy(), z.copy(), h.copy(), to_sort=True)
-    print("RS:")
-    restricted_simple(u.copy(), z.copy(), h.copy(), to_sort=True)
