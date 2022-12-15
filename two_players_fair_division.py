@@ -410,11 +410,16 @@ def top_down_alternating_helper(agents: AgentList, items: List[Any] = None, allo
     :param items A list of all existing items (U)
     :param allocations is the allocation for each player so far
     """
-    for _ in range(len(items) / 4):
-        items, allocations = allocate(agents, items, allocations, a_item=agents[0][0])
-        items, allocations = allocate(agents, items, allocations, b_item=agents[1][0])
-        items, allocations = allocate(agents, items, allocations, b_item=agents[1][0])
-        items, allocations = allocate(agents, items, allocations, a_item=agents[0][0])
+    flag = True
+    for _ in range(len(items) / 2):
+        if flag:
+            items, allocations = allocate(agents, items, allocations, a_item=agents[0][0])
+            items, allocations = allocate(agents, items, allocations, b_item=agents[1][0])
+            flag = False
+        elif not flag:
+            items, allocations = allocate(agents, items, allocations, b_item=agents[1][0])
+            items, allocations = allocate(agents, items, allocations, a_item=agents[0][0])
+            flag = True
     return allocations
 
 
@@ -494,11 +499,16 @@ def bottom_up_alternating_helper(agents: AgentList, items: List[Any] = None, all
     :param items A list of all existing items (U)
     :param allocations is the allocation for each player so far
     """
-    for _ in range(len(items) / 4):
-        items, allocations = allocate(agents, items, allocations, a_item=agents[1][len(items) - 1])
-        items, allocations = allocate(agents, items, allocations, b_item=agents[0][len(items) - 1])
-        items, allocations = allocate(agents, items, allocations, b_item=agents[0][len(items) - 1])
-        items, allocations = allocate(agents, items, allocations, a_item=agents[1][len(items) - 1])
+    flag = True
+    for _ in range(len(items) / 2):
+        if flag:
+            items, allocations = allocate(agents, items, allocations, a_item=agents[1][len(items) - 1])
+            items, allocations = allocate(agents, items, allocations, b_item=agents[0][len(items) - 1])
+            flag = False
+        elif not flag:
+            items, allocations = allocate(agents, items, allocations, b_item=agents[0][len(items) - 1])
+            items, allocations = allocate(agents, items, allocations, a_item=agents[1][len(items) - 1])
+            flag = True
     return allocations
 
 
