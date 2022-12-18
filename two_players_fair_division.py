@@ -10,6 +10,17 @@ from fairpy import fairpy
 from fairpy.fairpy.agentlist import AgentList
 
 
+def find_last_item(agent, items, item_list):
+    min_score = -1
+    min_item = ""
+    for item in item_list:
+        score = agent.value(item)
+        if min_score > score or min_score < 0:
+            min_score = score
+            min_item = item
+    return min_item
+
+
 def is_envy_free_partial_allocation(agents: AgentList, allocations: List[Any]):
     A_sum = 0
     B_sum = 0
@@ -47,16 +58,18 @@ def allocate(agents: AgentList, items: List[Any], allocations: List[Any] = None,
     # if allocations[0]:
     #     allocations[0] = [a_item]
     # else:
-    allocations[0].append(a_item)
-    items.remove(a_item)
+    if a_item:
+        allocations[0].append(a_item)
+        items.remove(a_item)
     # agents[0].remove(agents[0].value(a_item))
     # agents[1].remove(agents[1].value(a_item))
     # if b_item is not None:
     # if allocations[1]:
     #     allocations[1] = [b_item]
     # else:
-    allocations[1].append(b_item)
-    items.remove(b_item)
+    if b_item:
+        allocations[1].append(b_item)
+        items.remove(b_item)
     # agents[0].remove(b_item)
     # agents[1].remove(b_item)
     return items, allocations
@@ -694,10 +707,27 @@ def trump(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> print(top_down([Alice, George], ['computer', 'phone', 'tv', 'book']))
     {'a': [], 'b': []}
     """
-    pass
+
+    i = 1
+    allocations = [[], []]
+    length = len(items)
+    while i < length:
+        for m in range(len(agents)):
+            hm = H_M_l(agents, items, i)
+            if not hm:
+                print("No EV allocation")
+                return
+            if m == 0:
+                item = find_last_item(agents[1], items, hm[0])
+                allocate(agents, items, allocations, a_item=item)
+            if m == 1:
+                item = find_last_item(agents[0], items, hm[1])
+                allocate(agents, items, allocations, b_item=item)
+        i += 2
+    print(allocations)
 
 
 if __name__ == '__main__':
     Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name='Alice')
     George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name='George')
-    singles_doubles([Alice, George], ['computer', 'phone', 'tv', 'book'])
+    trump([Alice, George], ['computer', 'phone', 'tv', 'book'])
