@@ -30,3 +30,7 @@ a.k.a BA. The algorithm does not return envy-free allocations and does not retur
 ### Trump:
 a.k.a TR. The algorithm returns envy-free allocations, does not return max-min allocations and returns one Pareto
     optimality allocations.
+    
+ <p align="center">
+  <img src="https://github.com/ItayHasidi/researchAlgo_ex8/blob/main/comparison.png" width="500" title="Algorithm comparison">
+</p>
