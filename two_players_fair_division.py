@@ -11,9 +11,9 @@ from fairpy.fairpy.agentlist import AgentList
 
 def sequential(agents: AgentList, items: List[Any] = None) -> Dict:
     """
-    a.k.a OS. The algorithm returns envy-free allocations if they exist, does not return max-min allocation
-    and returns one Pareto optimality allocation.
-    the algorithm receives:
+    a.k.a OS. The algorithm returns envy-free allocations if they exist, does not return max-min allocation and returns
+    one Pareto optimality allocation.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
@@ -24,13 +24,25 @@ def sequential(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> sequential([Alice, George], ['computer', 'phone', 'tv', 'book'])
     [{'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}, {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}]
 
-    # test 2 :
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
     >>> sequential([Alice, George], ['computer', 'phone', 'tv', 'book'])
-    [{'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}, {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}, {'Alice': ['computer', 'tv'], 'George': ['phone', 'book']}, {'Alice': ['computer', 'book'], 'George': ['phone', 'tv']}, {'Alice': ['tv', 'phone'], 'George': ['computer', 'book']}, {'Alice': ['tv', 'book'], 'George': ['computer', 'phone']}, {'Alice': ['tv', 'computer'], 'George': ['phone', 'book']}, {'Alice': ['tv', 'book'], 'George': ['phone', 'computer']}]
+    [{'Alice': ['computer', 'tv'], 'George': ['phone', 'book']}, {'Alice': ['computer', 'book'], 'George': ['phone', 'tv']}, {'Alice': ['tv', 'phone'], 'George': ['computer', 'book']}, {'Alice': ['tv', 'book'], 'George': ['computer', 'phone']}, {'Alice': ['tv', 'computer'], 'George': ['phone', 'book']}, {'Alice': ['tv', 'book'], 'George': ['phone', 'computer']}]
+
+    # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'c': 1, 'a': 2, 'd': 3, 'b': 4, 'f': 5, 'e': 6}, name = 'George')
+    >>> sequential([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    [{'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}]
+
+    # test 4:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 3, 'c': 4, 'd': 2, 'e': 6, 'f': 5}, name = 'George')
+    >>> sequential([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    [{'Alice': ['a', 'c', 'e'], 'George': ['d', 'b', 'f']}, {'Alice': ['b', 'c', 'e'], 'George': ['a', 'd', 'f']}, {'Alice': ['b', 'c', 'e'], 'George': ['d', 'a', 'f']}]
     """
-    return recursive_sequential(agents, items)
+    return recursive_sequential(agents, items, allocations=[[], []], end_allocation=[])
 
 
 def recursive_sequential(agents: AgentList, items: List[Any], allocations: List[Any] = [[], []],
@@ -40,16 +52,16 @@ def recursive_sequential(agents: AgentList, items: List[Any], allocations: List[
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
-    :param end_allocation is the end allocation for each player
-    :param level is the depth level for item searching for each iteration
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
+    :param end_allocation is the end allocation for each player.
+    :param level is the depth level for item searching for each iteration.
     """
     if not items:
         end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
         return end_allocation
     H_A_level, H_B_level = H_M_l(agents, items, level)
-    if have_different_elements(H_A_level, H_B_level):
+    if H_A_level and H_B_level and have_different_elements(H_A_level, H_B_level):
         for i in H_A_level:
             for j in H_B_level:
                 if i != j:
@@ -63,9 +75,9 @@ def recursive_sequential(agents: AgentList, items: List[Any], allocations: List[
 
 def restricted_simple(agents: AgentList, items: List[Any] = None) -> Dict:
     """
-    a.k.a RS. The algorithm does not return envy-free allocations, does not return max-min allocations
-    and does not return one Pareto optimality allocations.
-    the algorithm receives:
+    a.k.a RS. The algorithm does not return envy-free allocations, does not return max-min allocations and does not
+    return one Pareto optimality allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
@@ -73,18 +85,29 @@ def restricted_simple(agents: AgentList, items: List[Any] = None) -> Dict:
     # test1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(restricted_simple([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> restricted_simple([Alice, George], ['computer', 'phone', 'tv', 'book'])
     [{'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}, {'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}]
 
 
     # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
-    >>> print(restricted_simple([Alice, George], ['computer', 'phone', 'tv', 'book']))
-    [{'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}, {'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}, {'Alice': ['tv', 'book'], 'George': ['computer', 'phone']}, {'Alice': ['tv', 'phone'], 'George': ['computer', 'book']}, {'Alice': ['computer', 'book'], 'George': ['phone', 'tv']}, {'Alice': ['computer', 'tv'], 'George': ['phone', 'book']}]
+    >>> restricted_simple([Alice, George], ['computer', 'phone', 'tv', 'book'])
+    [{'Alice': ['tv', 'book'], 'George': ['computer', 'phone']}, {'Alice': ['tv', 'phone'], 'George': ['computer', 'book']}, {'Alice': ['computer', 'book'], 'George': ['phone', 'tv']}, {'Alice': ['computer', 'tv'], 'George': ['phone', 'book']}]
 
+   # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'c': 1, 'a': 2, 'd': 3, 'b': 4, 'f': 5, 'e': 6}, name = 'George')
+    >>> restricted_simple([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    [{'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}]
+
+    # test 4:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 3, 'c': 4, 'd': 2, 'e': 6, 'f': 5}, name = 'George')
+    >>> restricted_simple([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    [{'Alice': ['b', 'c', 'e'], 'George': ['a', 'd', 'f']}, {'Alice': ['a', 'c', 'e'], 'George': ['d', 'b', 'f']}]
     """
-    return recursive_restricted_simple(agents, items)
+    return recursive_restricted_simple(agents, items, allocations=[[], []], end_allocation=[])
 
 
 def recursive_restricted_simple(agents: AgentList, items: List[Any], allocations: List[Any] = [[], []],
@@ -94,16 +117,16 @@ def recursive_restricted_simple(agents: AgentList, items: List[Any], allocations
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
-    :param end_allocation is the end allocation for each player
-    :param level is the depth level for item searching for each iteration
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
+    :param end_allocation is the end allocation for each player.
+    :param level is the depth level for item searching for each iteration.
     """
     if not items:
         end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
         return end_allocation
     H_A_level, H_B_level = H_M_l(agents, items, level)
-    if have_different_elements(H_A_level, H_B_level):
+    if H_A_level and H_B_level and have_different_elements(H_A_level, H_B_level):
         if H_A_level[0] != H_B_level[0]:
             _allocations = deep_copy_2d_list(allocations)
             _items, _allocations = allocate(items.copy(), _allocations, H_A_level[0], H_B_level[0])
@@ -126,8 +149,9 @@ def recursive_restricted_simple(agents: AgentList, items: List[Any], allocations
 
 def singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict:
     """
-    a.k.a SD. The algorithm returns envy-free allocations, returns max-min allocations
-    and returns one Pareto optimality allocations.
+    a.k.a SD. The algorithm returns envy-free allocations, returns max-min allocations and returns one Pareto
+    optimality allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
@@ -135,19 +159,19 @@ def singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict:
     # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(singles_doubles([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> singles_doubles([Alice, George], ['computer', 'phone', 'tv', 'book'])
     []
 
     # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
-    >>> print(singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f']))
+    >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
 
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
-    >>> print(singles_doubles([Alice, George], ['a', 'b', 'c', 'd']))
+    >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd'])
     [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
     """
     return singles_doubles_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
@@ -160,9 +184,9 @@ def singles_doubles_helper(agents: AgentList, items: List[Any] = None, allocatio
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
-    :param end_allocation is the end allocation for each player
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
+    :param end_allocation is the end allocation for each player.
     :param do_single is a boolean flag that indicates if the singles() algorithm should be used or not, in this function
      it will only be used the first time the function is called.
     """
@@ -189,33 +213,29 @@ def singles_doubles_helper(agents: AgentList, items: List[Any] = None, allocatio
 
 def iterated_singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict:
     """
-    a.k.a IS. The algorithm returns envy-free allocations, returns max-min allocations
-    and returns one Pareto optimality allocations.
+    a.k.a IS. The algorithm returns envy-free allocations, returns max-min allocations and returns one Pareto
+    optimality allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    the algorithm receives:
-        z_a - partial allocation for player a.
-        z_b - partial allocation for player b.
-        u - all un-allocated objects.
-
     # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(iterated_singles_doubles([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> iterated_singles_doubles([Alice, George], ['computer', 'phone', 'tv', 'book'])
     []
 
-    # rest2 :
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
-    >>> print(iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f']))
+    >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
 
     # test 3:
-     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
-    >>> print(iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd']))
+    >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd'])
     [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
     """
     return iterated_singles_doubles_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
@@ -228,9 +248,9 @@ def iterated_singles_doubles_helper(agents: AgentList, items: List[Any] = None, 
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
-    :param end_allocation is the end allocation for each player
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
+    :param end_allocation is the end allocation for each player.
     :param do_single is a boolean flag that indicates if the singles() algorithm should be used or not, in this function
      it will only be used the first time the function is called as many times as possible.
     """
@@ -260,26 +280,27 @@ def iterated_singles_doubles_helper(agents: AgentList, items: List[Any] = None, 
 def s1(agents: AgentList, items: List[Any] = None) -> Dict:
     """
     The algorithm returns envy-free allocations if they exist and returns max-min allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(s1([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> s1([Alice, George], ['computer', 'phone', 'tv', 'book'])
     []
 
-    # test2:
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
-    >>> print(s1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f']))
+    >>> s1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
 
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
-    >>> print(s1([Alice, George], ['a', 'b', 'c', 'd']))
+    >>> s1([Alice, George], ['a', 'b', 'c', 'd'])
     [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
     """
     return s1_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
@@ -292,9 +313,9 @@ def s1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
-    :param end_allocation is the end allocation for each player
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
+    :param end_allocation is the end allocation for each player.
     :param do_single is a boolean flag that indicates if the singles() algorithm should be used or not, in this function
      it will only be used the first time the function is called.
     """
@@ -320,26 +341,27 @@ def s1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
 def l1(agents: AgentList, items: List[Any] = None) -> Dict:
     """
     The algorithm returns envy-free allocations if they exist and returns max-min allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(l1([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> l1([Alice, George], ['computer', 'phone', 'tv', 'book'])
     []
 
-    # test2:
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
-    >>> print(l1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f']))
+    >>> l1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
 
-    # test3:
+    # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
-    >>> print(l1([Alice, George], ['a', 'b', 'c', 'd']))
+    >>> l1([Alice, George], ['a', 'b', 'c', 'd'])
     [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
     """
     return l1_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
@@ -352,11 +374,11 @@ def l1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
 
      :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
      player's name.
-     :param items A list of all existing items (U)
-     :param allocations is the allocation for each player so far
-     :param end_allocation is the end allocation for each player
-     :param do_single is a boolean flag that indicates if the singles() algorithm should be used or not, in this function
-      it will only be used the first time the function is called as many times as possible.
+     :param items A list of all existing items (U).
+     :param allocations is the allocation for each player so far.
+     :param end_allocation is the end allocation for each player.
+     :param do_single is a boolean flag that indicates if the singles() algorithm should be used or not,
+     in this function it will only be used the first time the function is called as many times as possible.
      """
     if do_single:
         flag = True
@@ -382,23 +404,31 @@ def l1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
 def top_down(agents: AgentList, items: List[Any] = None) -> Dict:
     """
     a.k.a TD. The algorithm does not return envy-free allocations and returns max-min allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(top_down([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> top_down([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}
 
-    # test2:
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
-    >>> print(top_down([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> top_down([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'tv'], 'George': ['phone', 'book']}
+
+
+    # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
+    >>> top_down([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    {'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}
     """
-    return top_down_helper(agents, items, [])
+    return top_down_helper(agents, items, allocations=[])
 
 
 def top_down_helper(agents: AgentList, items: List[Any] = None, allocations: List[Any] = None):
@@ -407,8 +437,8 @@ def top_down_helper(agents: AgentList, items: List[Any] = None, allocations: Lis
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
     """
     length = int(len(items) / 2)
     allocations = [[], []]
@@ -425,23 +455,31 @@ def top_down_helper(agents: AgentList, items: List[Any] = None, allocations: Lis
 def top_down_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     """
     a.k.a TA. The algorithm does not return envy-free allocations and returns max-min allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(top_down_alternating([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> top_down_alternating([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}
 
-    # test2:
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
-    >>> print(top_down_alternating([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> top_down_alternating([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'book'], 'George': ['phone', 'tv']}
+
+
+    # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
+    >>> top_down_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    {'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}
     """
-    return top_down_alternating_helper(agents, items, [])
+    return top_down_alternating_helper(agents, items, allocations=[])
 
 
 def top_down_alternating_helper(agents: AgentList, items: List[Any] = None, allocations: List[Any] = None):
@@ -450,8 +488,8 @@ def top_down_alternating_helper(agents: AgentList, items: List[Any] = None, allo
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
     """
     flag = True
     allocations = [[], []]
@@ -477,23 +515,30 @@ def top_down_alternating_helper(agents: AgentList, items: List[Any] = None, allo
 def bottom_up(agents: AgentList, items: List[Any] = None) -> Dict:
     """
     a.k.a BU. The algorithm does not return envy-free allocations and does not return max-min allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(bottom_up([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> bottom_up([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}
 
-    # test2:
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
-    >>> print(bottom_up([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> bottom_up([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['tv', 'computer'], 'George': ['book', 'phone']}
+
+    # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
+    >>> bottom_up([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    {'Alice': ['e', 'b', 'a'], 'George': ['f', 'd', 'c']}
     """
-    return bottom_up_helper(agents, items, [])
+    return bottom_up_helper(agents, items, allocations=[])
 
 
 def bottom_up_helper(agents: AgentList, items: List[Any] = None, allocations: List[Any] = None):
@@ -502,8 +547,8 @@ def bottom_up_helper(agents: AgentList, items: List[Any] = None, allocations: Li
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
     """
     length = int(len(items) / 2)
     allocations = [[], []]
@@ -522,23 +567,30 @@ def bottom_up_helper(agents: AgentList, items: List[Any] = None, allocations: Li
 def bottom_up_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     """
     a.k.a BA. The algorithm does not return envy-free allocations and does not return max-min allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(bottom_up_alternating([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> bottom_up_alternating([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}
 
     # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
-    >>> print(bottom_up_alternating([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> bottom_up_alternating([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['tv', 'phone'], 'George': ['book', 'computer']}
+
+    # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
+    >>> bottom_up_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    {'Alice': ['e', 'b', 'a'], 'George': ['f', 'd', 'c']}
     """
-    return bottom_up_alternating_helper(agents, items, [])
+    return bottom_up_alternating_helper(agents, items, allocations=[])
 
 
 def bottom_up_alternating_helper(agents: AgentList, items: List[Any] = None, allocations: List[Any] = None):
@@ -547,8 +599,8 @@ def bottom_up_alternating_helper(agents: AgentList, items: List[Any] = None, all
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
-    :param items A list of all existing items (U)
-    :param allocations is the allocation for each player so far
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
     """
     flag = True
     allocations = [[], []]
@@ -573,39 +625,45 @@ def bottom_up_alternating_helper(agents: AgentList, items: List[Any] = None, all
 
 def trump(agents: AgentList, items: List[Any] = None) -> Dict:
     """
-    a.k.a TR. The algorithm returns envy-free allocations, does not return max-min allocations
-    and returns one Pareto optimality allocations.
-    the algorithm receives:
+    a.k.a TR. The algorithm returns envy-free allocations, does not return max-min allocations and returns one Pareto
+    optimality allocations.
+
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
     player's name.
     :param items A list of all existing items (U).
 
-    # test1:
+    # test 1:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
-    >>> print(trump([Alice, George], ['computer', 'phone', 'tv', 'book']))
+    >>> trump([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}
 
-    # test2:
+    # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
-    >>> print(trump([Alice, George], ['computer', 'phone', 'tv', 'book']))
-    {'Alice': [], 'George': []}
+    >>> trump([Alice, George], ['computer', 'phone', 'tv', 'book'])
+    []
+
+    # test 3:
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
+    >>> trump([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
+    {'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}
     """
     i = 1
     allocations = [[], []]
+    end_allocation = []
     length = len(items)
     while i < length:
         for m in range(len(agents)):
             hm = H_M_l(agents, items, i)
             if not hm[0] and not hm[1]:
-                print({agents[0].name(): [], agents[1].name(): []})
-                return
+                return end_allocation
             if m == 0:
-                item = find_last_item(agents[1], items)
+                item = find_last_item(agents[1], hm[0])
                 allocate(items, allocations, a_item=item)
             if m == 1:
-                item = find_last_item(agents[0], items)
+                item = find_last_item(agents[0], hm[1])
                 allocate(items, allocations, b_item=item)
         i += 2
     end_allocation = {agents[0].name(): allocations[0], agents[1].name(): allocations[1]}

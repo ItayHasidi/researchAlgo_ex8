@@ -1,3 +1,8 @@
+"""
+Utils file for two_player_fair_division.py
+
+programmers: Itay Hasidi & Amichai Bitan
+"""
 from typing import List, Any, Dict
 from fairpy import fairpy
 from fairpy.fairpy.agentlist import AgentList
@@ -5,11 +10,18 @@ from fairpy.fairpy.agentlist import AgentList
 
 def find_last_item(agent, item_list):
     """
-    returns the last item a player wants
+    Returns the last item a player wants in the given list.
+
+    :param agent the agent for which the function checks the least valued item.
+    :param item_list all the items that are being checked.
 
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> find_last_item(Alice, ['computer', 'phone', 'tv', 'book'])
     'book'
+
+    >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
+    >>> find_last_item(Alice, ['computer'])
+    'computer'
     """
     max_score = -1
     max_item = ""
@@ -23,7 +35,11 @@ def find_last_item(agent, item_list):
 
 def is_envy_free_partial_allocation(agents: AgentList, allocations: List[Any]):
     """
-    Gets an allocation and determines if its env free
+    Gets an allocation and determines if its envy free.
+
+    :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
+    player's name.
+    :param allocations is the allocation for each player so far.
 
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
@@ -50,6 +66,8 @@ def deep_copy_2d_list(lst: list):
     """
     Deep copies a 2D list and returns it
 
+    :param lst the list that is being deep copied.
+
     >>> deep_copy_2d_list([[1, 2, 3], [4, 5, 6]])
     [[1, 2, 3], [4, 5, 6]]
     """
@@ -65,6 +83,7 @@ def deep_copy_2d_list(lst: list):
 def allocate(items: List[Any], allocations: List[Any] = None, a_item=None, b_item=None, valuation_list=None):
     """
     Allocates the first item, to agent A and the second item to agent B.
+
     :param items A list of all existing items (U).
     :param allocations is the allocation for each player so far
     :param a_item the item that agent A gets
@@ -102,6 +121,11 @@ def H_M_l(agents: AgentList, items: List[Any] = None, level: int = 1):
     """
     Returns the items each player wants until level.
 
+    :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
+    player's name.
+    :param items A list of all existing items (U).
+    :param level is the depth level for item searching for each iteration.
+
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
     >>> H_M_l([Alice, George], ['computer', 'phone', 'tv', 'book'])
@@ -122,8 +146,9 @@ def H_M_l(agents: AgentList, items: List[Any] = None, level: int = 1):
 def have_different_elements(items_A: List[Any], items_B: List[Any]):
     """
     Returns True if both lists different at at least one item.
-    :param items_A the list of items of player A
-    :param items_B the list of items of player B
+
+    :param items_A the list of items of player A.
+    :param items_B the list of items of player B.
 
     >>> have_different_elements(['a', 'b'], ['a', 'c'])
     True
@@ -147,6 +172,11 @@ def singles(agents: AgentList, items: List[Any] = None, allocations: List[Any] =
     Singles are object at the end of each lst that occur only in one player's list until a certain level.
     For instance: A = [1, 2, 3, 4], B = [1, 4, 3, 2] we see that 2 is single in B and 4 in A, but 3 is in both A and B
     so that means 3 is not a single.
+
+    :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
+    player's name.
+    :param items A list of all existing items (U).
+    :param allocations is the allocation for each player so far.
 
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
@@ -189,6 +219,10 @@ def sorted_valuations(agents: AgentList, items: List[Any]):
     """
     Returns the valuation of the agents in a sorted List format, where the first sub-list is the first agent,
     and the first item in a sub-list is the most valued item for that agent.
+
+    :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
+    player's name.
+    :param items A list of all existing items (U).
 
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
