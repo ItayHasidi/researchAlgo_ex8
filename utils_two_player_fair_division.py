@@ -166,7 +166,7 @@ def have_different_elements(items_A: List[Any], items_B: List[Any]):
     return False
 
 
-def singles(agents: AgentList, items: List[Any] = None, allocations: List[Any] = None):
+def singles(A_items: List[Any], B_items: List[Any], items: List[Any], allocations: List[Any] = None):
     """
     Goes over both valuation list of the players and returns allocates all the singles to each player.
     Singles are object at the end of each lst that occur only in one player's list until a certain level.
@@ -193,18 +193,20 @@ def singles(agents: AgentList, items: List[Any] = None, allocations: List[Any] =
     >>> singles([Alice, George], ['computer', 'phone', 'tv', 'book'], [[], []])
     (False, [[], []])
     """
-    A_items = {}
-    B_items = {}
     A_allocations = []
     B_allocations = []
-    for item in items:
-        A_items[agents[0].value(item)] = item
-        B_items[agents[1].value(item)] = item
-    for i in range(len(items)):
-        idx = len(items) - i
-        if A_items[idx] != B_items[idx]:
-            A_allocations.append(B_items[idx])
-            B_allocations.append(A_items[idx])
+    for i in range(len(allocations[0])):
+        A_items.remove(allocations[0][i])
+        A_items.remove(allocations[1][i])
+        B_items.remove(allocations[0][i])
+        B_items.remove(allocations[1][i])
+    length = int(len(items))
+    for i in range(length):
+        # idx = len(A_items) - i
+        if A_items[-1 - i] != B_items[-1 - i] and A_items[-1 - i] not in A_allocations and B_items[-1 - i] \
+                not in B_allocations:
+            A_allocations.append(B_items[-1 - i])
+            B_allocations.append(A_items[-1 - i])
         else:
             break
     if not A_allocations and not B_allocations:
@@ -213,6 +215,22 @@ def singles(agents: AgentList, items: List[Any] = None, allocations: List[Any] =
         if A_allocations[j] in items and B_allocations[j] in items:
             allocate(items, allocations, A_allocations[j], B_allocations[j])
     return True, allocations
+
+
+def get_valuation_list(agents: AgentList, items: List[Any]):
+    A_items_Dict = {}
+    B_items_Dict = {}
+    A_items = []
+    B_items = []
+    for item in items:
+        A_items_Dict[agents[0].value(item)] = item
+        B_items_Dict[agents[1].value(item)] = item
+    for i in range(1, len(agents[0].all_items()) + 1):
+        if i in B_items_Dict:
+            B_items.append(B_items_Dict[i])
+        if i in A_items_Dict:
+            A_items.append(A_items_Dict[i])
+    return A_items, B_items
 
 
 def sorted_valuations(agents: AgentList, items: List[Any]):

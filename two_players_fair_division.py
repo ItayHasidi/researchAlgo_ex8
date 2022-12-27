@@ -41,12 +41,26 @@ def sequential(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 3, 'c': 4, 'd': 2, 'e': 6, 'f': 5}, name = 'George')
     >>> sequential([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     [{'Alice': ['a', 'c', 'e'], 'George': ['d', 'b', 'f']}, {'Alice': ['b', 'c', 'e'], 'George': ['a', 'd', 'f']}, {'Alice': ['b', 'c', 'e'], 'George': ['d', 'a', 'f']}]
+
+    # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> sequential([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    [{'Alice': ['a', 'b', 'd', 'f'], 'George': ['g', 'h', 'c', 'e']}, {'Alice': ['a', 'b', 'e', 'f'], 'George': ['g', 'h', 'c', 'd']}]
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> sequential([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    [{'Alice': ['a', 'b', 'd', 'f', 'h'], 'George': ['i', 'j', 'c', 'e', 'g']}, {'Alice': ['a', 'b', 'd', 'g', 'h'], 'George': ['i', 'j', 'c', 'e', 'f']}, {'Alice': ['a', 'b', 'e', 'f', 'h'], 'George': ['i', 'j', 'c', 'd', 'g']}]
+
     """
+
     return recursive_sequential(agents, items, allocations=[[], []], end_allocation=[])
 
 
 def recursive_sequential(agents: AgentList, items: List[Any], allocations: List[Any] = [[], []],
-                         end_allocation=[], level: int = 1):
+                     end_allocation=[], level: int = 1):
     """
     A recursive helper function to sequential()
 
@@ -88,7 +102,6 @@ def restricted_simple(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> restricted_simple([Alice, George], ['computer', 'phone', 'tv', 'book'])
     [{'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}, {'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}]
 
-
     # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'George')
@@ -106,6 +119,19 @@ def restricted_simple(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 3, 'c': 4, 'd': 2, 'e': 6, 'f': 5}, name = 'George')
     >>> restricted_simple([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     [{'Alice': ['b', 'c', 'e'], 'George': ['a', 'd', 'f']}, {'Alice': ['a', 'c', 'e'], 'George': ['d', 'b', 'f']}]
+
+     # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> restricted_simple([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    [{'Alice': ['a', 'b', 'd', 'f'], 'George': ['g', 'h', 'c', 'e']}]
+
+     # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> restricted_simple([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    [{'Alice': ['a', 'b', 'd', 'f', 'h'], 'George': ['i', 'j', 'c', 'e', 'g']}]
+
     """
     return recursive_restricted_simple(agents, items, allocations=[[], []], end_allocation=[])
 
@@ -166,13 +192,25 @@ def singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
-    [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
+    [{'Alice': ['e', 'a', 'd'], 'George': ['f', 'b', 'c']}, {'Alice': ['e', 'b', 'c'], 'George': ['f', 'a', 'd']}]
 
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
     >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd'])
     [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
+
+    # test 4: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    []
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+    []
     """
     return singles_doubles_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
@@ -191,7 +229,8 @@ def singles_doubles_helper(agents: AgentList, items: List[Any] = None, allocatio
      it will only be used the first time the function is called.
     """
     if do_single:
-        singles(agents, items, allocations)
+        A_items, B_items = get_valuation_list(agents, items)
+        singles(A_items.copy(), B_items.copy(), items, allocations)
     if not items:
         if is_envy_free_partial_allocation(agents, allocations):
             end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
@@ -230,13 +269,25 @@ def iterated_singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
-    [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
+
 
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
     >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd'])
     [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
+
+    # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    []
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    []
     """
     return iterated_singles_doubles_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
@@ -255,9 +306,10 @@ def iterated_singles_doubles_helper(agents: AgentList, items: List[Any] = None, 
      it will only be used the first time the function is called as many times as possible.
     """
     if do_single:
+        A_items, B_items = get_valuation_list(agents, items)
         flag = True
         while flag:
-            flag, allocations = singles(agents, items, allocations)
+            flag, allocations = singles(A_items.copy(), B_items.copy(), items, allocations)
     if not items:
         if is_envy_free_partial_allocation(agents, allocations):
             end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
@@ -267,13 +319,13 @@ def iterated_singles_doubles_helper(agents: AgentList, items: List[Any] = None, 
     if H_A_level[0] != H_B_level[0]:
         _allocations = deep_copy_2d_list(allocations)
         _items, _allocations = allocate(agents, items.copy(), _allocations, H_A_level[0], H_B_level[0])
-        singles_doubles_helper(agents, _items, _allocations, end_allocation)
+        iterated_singles_doubles_helper(agents, _items, _allocations, end_allocation)
     temp_allocation_1 = deep_copy_2d_list(allocations)
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
-    singles_doubles_helper(agents, items_1, temp_allocation_1, end_allocation)
-    singles_doubles_helper(agents, items_2, temp_allocation_2, end_allocation)
+    iterated_singles_doubles_helper(agents, items_1, temp_allocation_1, end_allocation)
+    iterated_singles_doubles_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
 
 
@@ -289,19 +341,31 @@ def s1(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
     >>> s1([Alice, George], ['computer', 'phone', 'tv', 'book'])
-    []
+    [{'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}, {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}]
 
     # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> s1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
-    [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
+    [{'Alice': ['e', 'a', 'c'], 'George': ['f', 'b', 'd']}, {'Alice': ['e', 'a', 'd'], 'George': ['f', 'b', 'c']}, {'Alice': ['e', 'b', 'c'], 'George': ['f', 'a', 'd']}, {'Alice': ['e', 'b', 'd'], 'George': ['f', 'a', 'c']}]
 
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
     >>> s1([Alice, George], ['a', 'b', 'c', 'd'])
-    [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
+    [{'Alice': ['a', 'c'], 'George': ['b', 'd']}, {'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}, {'Alice': ['b', 'd'], 'George': ['a', 'c']}]
+
+    # test 4: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> s1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    [{'Alice': ['f', 'e', 'a', 'c'], 'George': ['h', 'g', 'b', 'd']}, {'Alice': ['f', 'e', 'a', 'd'], 'George': ['h', 'g', 'b', 'c']}, {'Alice': ['f', 'e', 'b', 'c'], 'George': ['h', 'g', 'a', 'd']}, {'Alice': ['f', 'e', 'b', 'd'], 'George': ['h', 'g', 'a', 'c']}]
+
+    # test 5: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> s1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    [{'Alice': ['h', 'g', 'a', 'c', 'e'], 'George': ['j', 'i', 'b', 'd', 'f']}, {'Alice': ['h', 'g', 'a', 'c', 'f'], 'George': ['j', 'i', 'b', 'd', 'e']}, {'Alice': ['h', 'g', 'a', 'd', 'e'], 'George': ['j', 'i', 'b', 'c', 'f']}, {'Alice': ['h', 'g', 'a', 'd', 'f'], 'George': ['j', 'i', 'b', 'c', 'e']}, {'Alice': ['h', 'g', 'b', 'c', 'e'], 'George': ['j', 'i', 'a', 'd', 'f']}, {'Alice': ['h', 'g', 'b', 'c', 'f'], 'George': ['j', 'i', 'a', 'd', 'e']}, {'Alice': ['h', 'g', 'b', 'd', 'e'], 'George': ['j', 'i', 'a', 'c', 'f']}, {'Alice': ['h', 'g', 'b', 'd', 'f'], 'George': ['j', 'i', 'a', 'c', 'e']}]
     """
     return s1_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
@@ -320,7 +384,8 @@ def s1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
      it will only be used the first time the function is called.
     """
     if do_single:
-        singles(agents, items, allocations)
+        A_items, B_items = get_valuation_list(agents, items)
+        singles(A_items.copy(), B_items.copy(), items, allocations)
     if not items:
         end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
         return end_allocation
@@ -328,13 +393,13 @@ def s1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
     if H_A_level[0] != H_B_level[0]:
         _allocations = deep_copy_2d_list(allocations)
         _items, _allocations = allocate(agents, items.copy(), _allocations, H_A_level[0], H_B_level[0])
-        singles_doubles_helper(agents, _items, _allocations, end_allocation)
+        s1_helper(agents, _items, _allocations, end_allocation)
     temp_allocation_1 = deep_copy_2d_list(allocations)
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
-    singles_doubles_helper(agents, items_1, temp_allocation_1, end_allocation)
-    singles_doubles_helper(agents, items_2, temp_allocation_2, end_allocation)
+    s1_helper(agents, items_1, temp_allocation_1, end_allocation)
+    s1_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
 
 
@@ -350,19 +415,31 @@ def l1(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'computer': 4, 'phone': 2, 'tv': 3, 'book': 1}, name = 'George')
     >>> l1([Alice, George], ['computer', 'phone', 'tv', 'book'])
-    []
+    [{'Alice': ['computer', 'phone'], 'George': ['book', 'tv']}, {'Alice': ['computer', 'tv'], 'George': ['book', 'phone']}]
 
     # test 2:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> l1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
-    [{'Alice': ['e', 'b', 'c'], 'George': ['f', 'd', 'a']}]
+    [{'Alice': ['e', 'b', 'a'], 'George': ['f', 'd', 'c']}]
 
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4}, name = 'George')
     >>> l1([Alice, George], ['a', 'b', 'c', 'd'])
-    [{'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}]
+    [{'Alice': ['a', 'c'], 'George': ['b', 'd']}, {'Alice': ['a', 'd'], 'George': ['b', 'c']}, {'Alice': ['b', 'c'], 'George': ['a', 'd']}, {'Alice': ['b', 'd'], 'George': ['a', 'c']}]
+
+    # test 4: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> l1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    [{'Alice': ['f', 'e', 'a', 'c'], 'George': ['h', 'g', 'b', 'd']}, {'Alice': ['f', 'e', 'a', 'd'], 'George': ['h', 'g', 'b', 'c']}, {'Alice': ['f', 'e', 'b', 'c'], 'George': ['h', 'g', 'a', 'd']}, {'Alice': ['f', 'e', 'b', 'd'], 'George': ['h', 'g', 'a', 'c']}]
+
+    # test 5: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> l1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    [{'Alice': ['h', 'g', 'a', 'c', 'e'], 'George': ['j', 'i', 'b', 'd', 'f']}, {'Alice': ['h', 'g', 'a', 'c', 'f'], 'George': ['j', 'i', 'b', 'd', 'e']}, {'Alice': ['h', 'g', 'a', 'd', 'e'], 'George': ['j', 'i', 'b', 'c', 'f']}, {'Alice': ['h', 'g', 'a', 'd', 'f'], 'George': ['j', 'i', 'b', 'c', 'e']}, {'Alice': ['h', 'g', 'b', 'c', 'e'], 'George': ['j', 'i', 'a', 'd', 'f']}, {'Alice': ['h', 'g', 'b', 'c', 'f'], 'George': ['j', 'i', 'a', 'd', 'e']}, {'Alice': ['h', 'g', 'b', 'd', 'e'], 'George': ['j', 'i', 'a', 'c', 'f']}, {'Alice': ['h', 'g', 'b', 'd', 'f'], 'George': ['j', 'i', 'a', 'c', 'e']}]
     """
     return l1_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
@@ -381,9 +458,10 @@ def l1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
      in this function it will only be used the first time the function is called as many times as possible.
      """
     if do_single:
+        A_items, B_items = get_valuation_list(agents, items)
         flag = True
         while flag:
-            flag, allocations = singles(agents, items, allocations)
+            flag, allocations = singles(A_items.copy(), B_items.copy(), items, allocations)
     if not items:
         end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
         return end_allocation
@@ -391,13 +469,13 @@ def l1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
     if H_A_level[0] != H_B_level[0]:
         _allocations = deep_copy_2d_list(allocations)
         _items, _allocations = allocate(agents, items.copy(), _allocations, H_A_level[0], H_B_level[0])
-        singles_doubles_helper(agents, _items, _allocations, end_allocation)
+        s1_helper(agents, _items, _allocations, end_allocation)
     temp_allocation_1 = deep_copy_2d_list(allocations)
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
-    singles_doubles_helper(agents, items_1, temp_allocation_1, end_allocation)
-    singles_doubles_helper(agents, items_2, temp_allocation_2, end_allocation)
+    s1_helper(agents, items_1, temp_allocation_1, end_allocation)
+    s1_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
 
 
@@ -427,6 +505,18 @@ def top_down(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> top_down([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     {'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}
+
+    # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> top_down([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    {'Alice': ['a', 'b', 'c', 'e'], 'George': ['g', 'h', 'd', 'f']}
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> top_down([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    {'Alice': ['a', 'b', 'c', 'e', 'g'], 'George': ['i', 'j', 'd', 'f', 'h']}
     """
     return top_down_helper(agents, items, allocations=[])
 
@@ -457,7 +547,7 @@ def top_down_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     a.k.a TA. The algorithm does not return envy-free allocations and returns max-min allocations.
 
     :param agents A list that represent the players(agents) and for each player his valuation for each item, plus the
-    player's name.
+    player's name. A-BB-AA...-B
     :param items A list of all existing items (U).
 
     # test 1:
@@ -472,12 +562,24 @@ def top_down_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> top_down_alternating([Alice, George], ['computer', 'phone', 'tv', 'book'])
     {'Alice': ['computer', 'book'], 'George': ['phone', 'tv']}
 
-
     # test 3:
     >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6}, name = 'Alice')
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> top_down_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     {'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}
+
+      # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> top_down_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    {'Alice': ['a', 'b', 'c', 'f'], 'George': ['g', 'h', 'd', 'e']}
+
+     # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> top_down_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    {'Alice': ['a', 'b', 'c', 'f', 'g'], 'George': ['i', 'j', 'd', 'e', 'h']}
+
     """
     return top_down_alternating_helper(agents, items, allocations=[])
 
@@ -537,6 +639,19 @@ def bottom_up(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> bottom_up([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     {'Alice': ['e', 'b', 'a'], 'George': ['f', 'd', 'c']}
+
+    # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> bottom_up([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    {'Alice': ['f', 'e', 'c', 'a'], 'George': ['h', 'g', 'd', 'b']}
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> bottom_up([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    {'Alice': ['h', 'g', 'e', 'c', 'a'], 'George': ['j', 'i', 'f', 'd', 'b']}
+
     """
     return bottom_up_helper(agents, items, allocations=[])
 
@@ -589,6 +704,18 @@ def bottom_up_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> bottom_up_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     {'Alice': ['e', 'b', 'a'], 'George': ['f', 'd', 'c']}
+
+    # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> bottom_up_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    {'Alice': ['f', 'e', 'c', 'b'], 'George': ['h', 'g', 'd', 'a']}
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> bottom_up_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    {'Alice': ['h', 'g', 'e', 'd', 'a'], 'George': ['j', 'i', 'f', 'c', 'b']}
     """
     return bottom_up_alternating_helper(agents, items, allocations=[])
 
@@ -649,6 +776,18 @@ def trump(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> George = fairpy.agents.AdditiveAgent({'a': 2, 'b': 4, 'c': 1, 'd': 3, 'e': 6, 'f': 5}, name = 'George')
     >>> trump([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f'])
     {'Alice': ['a', 'b', 'e'], 'George': ['c', 'd', 'f']}
+
+    # test 5: 8 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 , 'h' : 8}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :1 , 'h' : 2}, name='George')
+    >>> trump([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h'])
+    {'Alice': ['a', 'c', 'e', 'f'], 'George': ['g', 'h', 'b', 'd']}
+
+    # test 6: 10 items
+    >>> Alice = fairpy.agents.AdditiveAgent({'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6,'g' :7 ,'h' : 8, 'i' : 9 ,'j': 10}, name='Alice')
+    >>> George = fairpy.agents.AdditiveAgent({'a': 3, 'b': 4, 'c': 5, 'd': 6, 'e': 7, 'f': 8,'g' :9 , 'h' : 10, 'i' : 1 ,'j': 2}, name='George')
+    >>> trump([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
+    {'Alice': ['a', 'c', 'e', 'g', 'h'], 'George': ['i', 'j', 'b', 'd', 'f']}
     """
     i = 1
     allocations = [[], []]
@@ -657,7 +796,8 @@ def trump(agents: AgentList, items: List[Any] = None) -> Dict:
     while i < length:
         for m in range(len(agents)):
             hm = H_M_l(agents, items, i)
-            if not hm[0] and not hm[1]:
+            # if not hm[0] and not hm[1]:
+            if not hm[m]:
                 return end_allocation
             if m == 0:
                 item = find_last_item(agents[1], hm[0])
