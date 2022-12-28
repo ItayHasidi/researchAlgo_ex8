@@ -5,8 +5,13 @@ By: D. Marc Kilgour, Rudolf Vetschera
 programmers: Itay Hasidi & Amichai Bitan
 """
 from utils_two_player_fair_division import *
+import logging
 from fairpy import fairpy
 from fairpy.fairpy.agentlist import AgentList
+
+
+# logging.basicConfig(level=loggining.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def sequential(agents: AgentList, items: List[Any] = None) -> Dict:
@@ -71,10 +76,13 @@ def recursive_sequential(agents: AgentList, items: List[Any], allocations: List[
     :param end_allocation is the end allocation for each player.
     :param level is the depth level for item searching for each iteration.
     """
+    logger.info("\nAlgorithm: OS\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     if not items:
         end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
         return end_allocation
     H_A_level, H_B_level = H_M_l(agents, items, level)
+    logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                allocations[0])
     if H_A_level and H_B_level and have_different_elements(H_A_level, H_B_level):
         for i in H_A_level:
             for j in H_B_level:
@@ -133,6 +141,7 @@ def restricted_simple(agents: AgentList, items: List[Any] = None) -> Dict:
     [{'Alice': ['a', 'b', 'd', 'f', 'h'], 'George': ['i', 'j', 'c', 'e', 'g']}]
 
     """
+    logger.debug("\nAlgorithm: RS\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return recursive_restricted_simple(agents, items, allocations=[[], []], end_allocation=[])
 
 
@@ -152,6 +161,8 @@ def recursive_restricted_simple(agents: AgentList, items: List[Any], allocations
         end_allocation.append({agents[0].name(): allocations[0], agents[1].name(): allocations[1]})
         return end_allocation
     H_A_level, H_B_level = H_M_l(agents, items, level)
+    logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                allocations[0])
     if H_A_level and H_B_level and have_different_elements(H_A_level, H_B_level):
         if H_A_level[0] != H_B_level[0]:
             _allocations = deep_copy_2d_list(allocations)
@@ -212,6 +223,7 @@ def singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     []
     """
+    logger.debug("\nAlgorithm: SD\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return singles_doubles_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
 
@@ -245,6 +257,8 @@ def singles_doubles_helper(agents: AgentList, items: List[Any] = None, allocatio
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
+    logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                allocations[0])
     singles_doubles_helper(agents, items_1, temp_allocation_1, end_allocation)
     singles_doubles_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
@@ -289,6 +303,7 @@ def iterated_singles_doubles(agents: AgentList, items: List[Any] = None) -> Dict
     >>> iterated_singles_doubles([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
     []
     """
+    logger.debug("\nAlgorithm: IS\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return iterated_singles_doubles_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
 
@@ -324,6 +339,8 @@ def iterated_singles_doubles_helper(agents: AgentList, items: List[Any] = None, 
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
+    logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                allocations[0])
     iterated_singles_doubles_helper(agents, items_1, temp_allocation_1, end_allocation)
     iterated_singles_doubles_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
@@ -367,6 +384,7 @@ def s1(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> s1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
     [{'Alice': ['h', 'g', 'a', 'c', 'e'], 'George': ['j', 'i', 'b', 'd', 'f']}, {'Alice': ['h', 'g', 'a', 'c', 'f'], 'George': ['j', 'i', 'b', 'd', 'e']}, {'Alice': ['h', 'g', 'a', 'd', 'e'], 'George': ['j', 'i', 'b', 'c', 'f']}, {'Alice': ['h', 'g', 'a', 'd', 'f'], 'George': ['j', 'i', 'b', 'c', 'e']}, {'Alice': ['h', 'g', 'b', 'c', 'e'], 'George': ['j', 'i', 'a', 'd', 'f']}, {'Alice': ['h', 'g', 'b', 'c', 'f'], 'George': ['j', 'i', 'a', 'd', 'e']}, {'Alice': ['h', 'g', 'b', 'd', 'e'], 'George': ['j', 'i', 'a', 'c', 'f']}, {'Alice': ['h', 'g', 'b', 'd', 'f'], 'George': ['j', 'i', 'a', 'c', 'e']}]
     """
+    logger.debug("\nAlgorithm: S1\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return s1_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
 
@@ -398,6 +416,8 @@ def s1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
+    logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                allocations[0])
     s1_helper(agents, items_1, temp_allocation_1, end_allocation)
     s1_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
@@ -441,6 +461,7 @@ def l1(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> l1([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
     [{'Alice': ['h', 'g', 'a', 'c', 'e'], 'George': ['j', 'i', 'b', 'd', 'f']}, {'Alice': ['h', 'g', 'a', 'c', 'f'], 'George': ['j', 'i', 'b', 'd', 'e']}, {'Alice': ['h', 'g', 'a', 'd', 'e'], 'George': ['j', 'i', 'b', 'c', 'f']}, {'Alice': ['h', 'g', 'a', 'd', 'f'], 'George': ['j', 'i', 'b', 'c', 'e']}, {'Alice': ['h', 'g', 'b', 'c', 'e'], 'George': ['j', 'i', 'a', 'd', 'f']}, {'Alice': ['h', 'g', 'b', 'c', 'f'], 'George': ['j', 'i', 'a', 'd', 'e']}, {'Alice': ['h', 'g', 'b', 'd', 'e'], 'George': ['j', 'i', 'a', 'c', 'f']}, {'Alice': ['h', 'g', 'b', 'd', 'f'], 'George': ['j', 'i', 'a', 'c', 'e']}]
     """
+    logger.debug("\nAlgorithm: L1\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return l1_helper(agents, items, allocations=[[], []], end_allocation=[], do_single=True)
 
 
@@ -474,6 +495,8 @@ def l1_helper(agents: AgentList, items: List[Any] = None, allocations=[[], []], 
     temp_allocation_2 = deep_copy_2d_list(allocations)
     items_1, temp_allocation_1 = allocate(items.copy(), temp_allocation_1, H_A_level[0], H_B_level[1])
     items_2, temp_allocation_2 = allocate(items.copy(), temp_allocation_2, H_A_level[1], H_B_level[0])
+    logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                allocations[0])
     s1_helper(agents, items_1, temp_allocation_1, end_allocation)
     s1_helper(agents, items_2, temp_allocation_2, end_allocation)
     return end_allocation
@@ -518,6 +541,7 @@ def top_down(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> top_down([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
     {'Alice': ['a', 'b', 'c', 'e', 'g'], 'George': ['i', 'j', 'd', 'f', 'h']}
     """
+    logger.debug("\nAlgorithm: TD\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return top_down_helper(agents, items, allocations=[])
 
 
@@ -538,6 +562,8 @@ def top_down_helper(agents: AgentList, items: List[Any] = None, allocations: Lis
             items, allocations = allocate(items, allocations, a_item=valuations[0][0], valuation_list=valuations)
         if valuations[1][0] in items:
             items, allocations = allocate(items, allocations, b_item=valuations[1][0], valuation_list=valuations)
+        logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                    allocations[0])
     end_allocation = {agents[0].name(): allocations[0], agents[1].name(): allocations[1]}
     return end_allocation
 
@@ -581,6 +607,7 @@ def top_down_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     {'Alice': ['a', 'b', 'c', 'f', 'g'], 'George': ['i', 'j', 'd', 'e', 'h']}
 
     """
+    logger.debug("\nAlgorithm: TA\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return top_down_alternating_helper(agents, items, allocations=[])
 
 
@@ -610,6 +637,9 @@ def top_down_alternating_helper(agents: AgentList, items: List[Any] = None, allo
             if valuations[0][0] in items:
                 items, allocations = allocate(items, allocations, a_item=valuations[0][0], valuation_list=valuations)
             flag = True
+        logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                    allocations[0])
+
     end_allocation = {agents[0].name(): allocations[0], agents[1].name(): allocations[1]}
     return end_allocation
 
@@ -653,6 +683,7 @@ def bottom_up(agents: AgentList, items: List[Any] = None) -> Dict:
     {'Alice': ['h', 'g', 'e', 'c', 'a'], 'George': ['j', 'i', 'f', 'd', 'b']}
 
     """
+    logger.debug("\nAlgorithm: BU\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return bottom_up_helper(agents, items, allocations=[])
 
 
@@ -675,6 +706,9 @@ def bottom_up_helper(agents: AgentList, items: List[Any] = None, allocations: Li
         if valuations[1][len(valuations[1]) - 1] in items:
             items, allocations = allocate(items, allocations, a_item=valuations[1][len(valuations[1]) - 1],
                                           valuation_list=valuations)
+        logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                    allocations[0])
+
     end_allocation = {agents[0].name(): allocations[0], agents[1].name(): allocations[1]}
     return end_allocation
 
@@ -717,6 +751,7 @@ def bottom_up_alternating(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> bottom_up_alternating([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
     {'Alice': ['h', 'g', 'e', 'd', 'a'], 'George': ['j', 'i', 'f', 'c', 'b']}
     """
+    logger.debug("\nAlgorithm: BA\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     return bottom_up_alternating_helper(agents, items, allocations=[])
 
 
@@ -746,6 +781,9 @@ def bottom_up_alternating_helper(agents: AgentList, items: List[Any] = None, all
             if valuations[0][len(valuations[0]) - 1] in items:
                 items, allocations = allocate(items, allocations, b_item=valuations[0][len(valuations[0]) - 1], valuation_list=valuations)
             flag = True
+        logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(),
+                    allocations[0])
+
     end_allocation = {agents[0].name(): allocations[0], agents[1].name(): allocations[1]}
     return end_allocation
 
@@ -789,6 +827,7 @@ def trump(agents: AgentList, items: List[Any] = None) -> Dict:
     >>> trump([Alice, George], ['a', 'b', 'c', 'd', 'e', 'f','g','h','i' , 'j'])
     {'Alice': ['a', 'c', 'e', 'g', 'h'], 'George': ['i', 'j', 'b', 'd', 'f']}
     """
+    logger.debug("\nAlgorithm: TR\nTwo Agents %s %s and items %s", agents[0].name(), agents[1].name(), items)
     i = 1
     allocations = [[], []]
     end_allocation = []
@@ -805,6 +844,13 @@ def trump(agents: AgentList, items: List[Any] = None) -> Dict:
             if m == 1:
                 item = find_last_item(agents[0], hm[1])
                 allocate(items, allocations, b_item=item)
+            logger.info("current allocations: \n%s: %s\n%s: %s", agents[0].name(), allocations[0], agents[1].name(), allocations[0])
         i += 2
     end_allocation = {agents[0].name(): allocations[0], agents[1].name(): allocations[1]}
     return end_allocation
+
+
+# if __name__ == '__main__':
+#     Alice = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 3, 'tv': 2, 'book': 4}, name='Alice')
+#     George = fairpy.agents.AdditiveAgent({'computer': 1, 'phone': 2, 'tv': 3, 'book': 4}, name='George')
+#     sequential([Alice, George], ['computer', 'phone', 'tv', 'book'])
